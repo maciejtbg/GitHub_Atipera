@@ -1,9 +1,9 @@
 package com.atipera.github.service;
 
-import com.atipera.github.model.BranchDto;
-import com.atipera.github.model.RepositoryDto;
+
 import com.atipera.github.model.UserDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
@@ -12,7 +12,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -49,7 +48,6 @@ public class UserService {
     }
 
     public UserDto getUser(String userName) {
-
         ResponseEntity<?> responseEntity = getResponseForUser(userName);
         //jeśli user nie istnieje, GitHub zwraca kod 422 (GitHub: 422 Unprocessable Entity)
         if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
@@ -57,54 +55,22 @@ public class UserService {
             return null;
         } else {
             String responseString = (String) responseEntity.getBody();
-            UserDto user = new UserDto();
+            UserDto userDto;
             try {
-                JsonNode root = objectMapper.readTree(responseString);
-                JsonNode itemsNode = root.get("items");
-                List<RepositoryDto> repositories = new LinkedList<>();
-                for (JsonNode itemNode : itemsNode) { //iteruje po wszystkich repozytoriach
-                    boolean repoFork = itemNode.path("fork").asBoolean();
-
-                    if (!repoFork) { //warunek sprawdzający, czy repozytorium nie jest forkiem
-                        RepositoryDto repository = new RepositoryDto();
-                        String repoName = itemNode.path("name").asText();
-                        repository.setRepositoryName(repoName);
-
-                        String owner = itemNode.path("owner").path("login").asText();
-                        repository.setOwnerLogin(owner);
-
-                        repository.setBranches(getBranchDtoList(owner, repoName));
-                        repositories.add(repository);
-                    }
+                userDto = objectMapper.readValue(responseString, UserDto.class); //rzutuje odrazu na obiekt User ale bez branches
+                for (UserDto.RepositoryDto repositoryDto : userDto.getRepositories()) { //iteruje po wszystkich repo i dodaje branches
+                    repositoryDto.setBranches(getBranchDtoList(repositoryDto.getOwner().getOwnerLogin(), repositoryDto.getRepositoryName()));
                 }
-                user.setRepositories(repositories);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
-            return user;
+            return userDto;
         }
     }
 
-    public List<BranchDto> getBranchDtoList(String owner, String repo) {
-
-        List<BranchDto> list = new ArrayList<>();
-        String response = restTemplate.getForObject(BASE_URL + "repos/{owner}/{repo}/branches", String.class, owner, repo);
-        JsonNode root;
-        try {
-            root = objectMapper.readTree(response);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        JsonNode itemsNode = root;
-        for (JsonNode itemNode : itemsNode) {
-            BranchDto branchDto = new BranchDto();
-            String branchName = itemNode.path("name").asText();
-            branchDto.setName(branchName);
-
-            String sha1 = itemNode.path("commit").path("sha").asText();
-            branchDto.setSha1(sha1);
-            list.add(branchDto);
-        }
-        return list;
+    public List<UserDto.RepositoryDto.BranchDto> getBranchDtoList(String owner, String repo) throws JsonProcessingException {
+        String responseString = restTemplate.getForObject(BASE_URL + "repos/{owner}/{repo}/branches", String.class, owner, repo);
+        return objectMapper.readValue(responseString, new TypeReference<>() {
+        });
     }
 }

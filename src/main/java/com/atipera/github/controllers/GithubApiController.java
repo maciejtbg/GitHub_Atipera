@@ -1,7 +1,9 @@
 package com.atipera.github.controllers;
 
+import com.atipera.github.Views;
 import com.atipera.github.model.UserDto;
 import com.atipera.github.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +25,7 @@ class GithubApiController {
     }
 
     @GetMapping("/api/users/{username}")
+    @JsonView(Views.Public.class) // Widok tylko publicznych pól
     public ResponseEntity<?> getUser(@RequestHeader("Accept") String acceptHeader, @PathVariable("username") String username) {
         if (acceptHeader.equalsIgnoreCase("application/xml")) { //obsługa w przypadku żądania XML
             ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(), "Not acceptable header");
