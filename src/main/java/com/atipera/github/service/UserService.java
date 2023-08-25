@@ -4,7 +4,6 @@ package com.atipera.github.service;
 import com.atipera.github.model.UserDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -24,31 +23,36 @@ public class UserService {
 
     private final ObjectMapper objectMapper = new ObjectMapper(); //Object Mapper do mapowania
 
-    public ResponseEntity<?> getResponseForUser(String userName) {
-        //dzięki nagłówkowi osiąga się większą możliwą ilość zapytań na minutę
+    public ResponseEntity<?> getResponseForUser(String userName, String token) {
+        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/vnd.github+json");
-        headers.set("Authorization", "Bearer " + MY_TOKEN);
         headers.set("X-GitHub-Api-Version", "2022-11-28");
-
+        if (token != null) {
+            headers.set("Authorization", "Bearer " + token);
+        }
         HttpEntity<?> httpEntity = new HttpEntity<>(headers);
-
         try {
-            return restTemplate.exchange(
-                    BASE_URL + "search/repositories?q=user:{user}",
+            String apiUrl = BASE_URL + "search/repositories?q=user:" + userName;
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    apiUrl,
                     HttpMethod.GET,
-                    httpEntity, //dodaje przygotowany nagłówek
-                    String.class, //oczekuje String jako odpowiedź
-                    userName
+                    httpEntity,
+                    String.class
             );
+            return ResponseEntity.status(response.getStatusCode())
+                    .headers(response.getHeaders())
+                    .body(response.getBody());
         } catch (HttpStatusCodeException e) {
-            return ResponseEntity.status(e.getStatusCode()).headers(e.getResponseHeaders())
+            return ResponseEntity.status(e.getStatusCode())
+                    .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsString());
         }
     }
 
-    public UserDto getUser(String userName) {
-        ResponseEntity<?> responseEntity = getResponseForUser(userName);
+    public UserDto getUser(String userName, String token) {
+        ResponseEntity<?> responseEntity = getResponseForUser(userName, token);
         //jeśli user nie istnieje, GitHub zwraca kod 422 (GitHub: 422 Unprocessable Entity)
         if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
             //user nie istnieje
