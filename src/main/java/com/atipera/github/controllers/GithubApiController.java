@@ -4,14 +4,15 @@ import com.atipera.github.Views;
 import com.atipera.github.model.UserDto;
 import com.atipera.github.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -26,25 +27,15 @@ class GithubApiController {
         this.userService = userService;
     }
 
+//
+
     @GetMapping("/api/users/{username}")
     @JsonView(Views.Public.class) // Widok tylko publicznych pól
-    public ResponseEntity<?> getUserWithoutToken(@RequestHeader("Accept") String acceptHeader,
-                                                 @PathVariable("username") String username) {
-        return getUserInternal(acceptHeader, username, null);
-    }
-
-    @GetMapping("/api/users/{username}/{token}")
-    @JsonView(Views.Public.class) // Widok tylko publicznych pól
-    public ResponseEntity<?> getUserWithToken(@RequestHeader("Accept") String acceptHeader,
+    public ResponseEntity<?> getUserWithToken(@RequestHeader(value = "Accept", required = false) String acceptHeader,
                                               @PathVariable("username") String username,
-                                              @PathVariable("token") String token) {
-        return getUserInternal(acceptHeader, username, token);
-    }
-
-
-    private ResponseEntity<?> getUserInternal(String acceptHeader,String username, String token) {
+                                              @RequestParam(value = "token", required = false) String token) {
         if (acceptHeader.equalsIgnoreCase("application/xml")) { //obsługa w przypadku żądania XML
-            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(), "Not acceptable header");
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(), "Not acceptable XML header");
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                     .contentType(MediaType.APPLICATION_JSON) // Ustawia format odpowiedzi na JSON
                     .body(errorMessage);
@@ -56,17 +47,17 @@ class GithubApiController {
         }
         return ResponseEntity.ok(userDto);
     }
-
 }
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 class ErrorMessage {
+    @JsonView(Views.Public.class)
     private int status;
+    @JsonView(Views.Public.class)
     private String message;
-
-    public ErrorMessage(int status, String message) {
-        this.status = status;
-        this.message = message;
-    }
 }
 
 
