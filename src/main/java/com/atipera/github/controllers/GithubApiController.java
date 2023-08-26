@@ -14,8 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 
 @RestController
 class GithubApiController {
@@ -27,11 +25,11 @@ class GithubApiController {
         this.userService = userService;
     }
 
-//
+
 
     @GetMapping("/api/users/{username}")
     @JsonView(Views.Public.class) // Widok tylko publicznych pól
-    public ResponseEntity<?> getUserWithToken(@RequestHeader(value = "Accept", required = false) String acceptHeader,
+    public ResponseEntity<?> getUser(@RequestHeader(value = "Accept", required = false) String acceptHeader,
                                               @PathVariable("username") String username,
                                               @RequestParam(value = "token", required = false) String token) {
         if (acceptHeader.equalsIgnoreCase("application/xml")) { //obsługa w przypadku żądania XML

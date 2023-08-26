@@ -9,8 +9,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,17 +16,14 @@ public class UserService {
 
     private static final String BASE_URL = "https://api.github.com/";
     private final RestTemplate restTemplate = new RestTemplate(); //klasa Spring Boot to przekazywania i obsługi zapytań REST
-
-    private static final String MY_TOKEN = "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"; //mój token działa przez 5 dni
-
-    private final ObjectMapper objectMapper = new ObjectMapper(); //Object Mapper do mapowania
+    private final ObjectMapper objectMapper = new ObjectMapper(); //Object Mapper do mapowania na obiekt klasy UserDto
 
     public ResponseEntity<?> getResponseForUser(String userName, String token) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", "application/vnd.github+json");
+        headers.set("Accept", "application/vnd.github+json"); //nagłówek z github
         headers.set("X-GitHub-Api-Version", "2022-11-28");
-        if (token != null) {
+        if (token != null) { // jeśli nie ma tokena to tej linii nagłówka nie należy podawać 401
             headers.set("Authorization", "Bearer " + token);
         }
         HttpEntity<?> httpEntity = new HttpEntity<>(headers);
