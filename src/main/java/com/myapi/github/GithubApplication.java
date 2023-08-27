@@ -1,4 +1,4 @@
-package com.atipera.github;
+package com.myapi.github;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

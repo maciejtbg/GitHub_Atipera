@@ -1,6 +1,6 @@
-package com.atipera.github.model;
+package com.myapi.github.model;
 
-import com.atipera.github.Views;
+import com.myapi.github.Views;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;

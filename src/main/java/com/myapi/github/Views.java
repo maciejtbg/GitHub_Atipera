@@ -1,4 +1,4 @@
-package com.atipera.github;
+package com.myapi.github;
 
 public interface Views {
     class Public {}

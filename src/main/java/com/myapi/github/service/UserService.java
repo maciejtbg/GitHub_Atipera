@@ -1,7 +1,7 @@
-package com.atipera.github.service;
+package com.myapi.github.service;
 
 
-import com.atipera.github.model.UserDto;
+import com.myapi.github.model.UserDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,8 +1,8 @@
-package com.atipera.github.controllers;
+package com.myapi.github.controllers;
 
-import com.atipera.github.Views;
-import com.atipera.github.model.UserDto;
-import com.atipera.github.service.UserService;
+import com.myapi.github.Views;
+import com.myapi.github.model.UserDto;
+import com.myapi.github.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

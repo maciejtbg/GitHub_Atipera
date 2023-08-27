@@ -14,9 +14,9 @@ This is a Spring Boot application that interacts with the GitHub API to retrieve
 
 The project has the following main packages:
 
-- `com.atipera.github.controllers`: Contains the controller classes that handle HTTP requests.
-- `com.atipera.github.model`: Contains the DTO classes used for mapping JSON responses.
-- `com.atipera.github.service`: Contains the service classes responsible for interacting with the GitHub API.
+- `com.myapi.github.controllers`: Contains the controller classes that handle HTTP requests.
+- `com.myapi.github.model`: Contains the DTO classes used for mapping JSON responses.
+- `com.myapi.github.service`: Contains the service classes responsible for interacting with the GitHub API.
 
 ## Endpoints
 
